@@ -16,6 +16,9 @@ impl<T: Clone> Permutations<T> {
         I: IntoIterator<Item = T>,
     {
         let a: Vec<T> = iter.into_iter().collect();
+        if a.is_empty() {
+            panic!("Permutations::new requires a non-empty input iterator");
+        }
         let n = a.len();
         let c = vec![0; n];
         Permutations {
@@ -32,9 +35,6 @@ impl<T: Clone> Iterator for Permutations<T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let n = self.a.len();
-        if n == 0 {
-            return None;
-        }
         if self.first {
             self.first = false;
             return Some(self.a.clone());
@@ -70,12 +70,11 @@ pub struct Product<T> {
 
 impl<T: Clone> Product<T> {
     pub fn new(choices: Vec<T>, repeat: usize) -> Self {
-        if repeat == 0 {
-            return Product {
-                choices,
-                indices: Vec::new(),
-                done: true, // will yield once the empty vector if desired; we'll special-case in next()
-            };
+        if choices.is_empty() {
+            panic!("Product::new requires a non-empty choices vector");
+        }
+        if repeat < 1 {
+            panic!("Product::new requires repeat >= 1");
         }
         Product {
             choices,
@@ -89,16 +88,6 @@ impl<T: Clone> Iterator for Product<T> {
     type Item = Vec<T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        // Special case: repeat = 0 -> yield one empty vector and then none.
-        if self.indices.is_empty() {
-            if self.done {
-                return None;
-            } else {
-                self.done = true;
-                return Some(vec![]);
-            }
-        }
-
         if self.done {
             return None;
         }

@@ -107,6 +107,20 @@ impl State {
             Camel::GREEN,
             Camel::BLUE,
         ];
+        // Preconditions: every Camel must appear exactly once in self.data
+        for &camel in &camel_list {
+            let occurrences: usize = self
+                .data
+                .values()
+                .map(|v| v.iter().filter(|&&c| c == camel).count())
+                .sum();
+            if occurrences != 1 {
+                panic!(
+                    "tally_outcomes requires each Camel to appear exactly once in state.data; camel {:?} appears {} times",
+                    camel, occurrences
+                );
+            }
+        }
         let num_camels = camel_list.len();
         let choices = vec![1_i32, 2, 3];
 

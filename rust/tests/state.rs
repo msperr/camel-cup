@@ -21,7 +21,6 @@ fn test_move_white_combinations() {
     let v4 = vec![Camel::YELLOW, Camel::WHITE];
 
     // Two possibilities for data[field + 1]
-    let nv_empty: Vec<Camel> = vec![]; // represents absent key
     let nv_green = vec![Camel::GREEN];
 
     // Helper to run a single scenario: initial map entries, expected map entries
