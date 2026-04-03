@@ -53,6 +53,8 @@ impl State {
             None => panic!("camel {:?} not found in state.data", camel),
         };
 
+        // Use checked_add to detect overflow when adding steps to field.
+        // This panics with a clear message if arithmetic would overflow i32.
         let new_field = field.checked_add(steps).unwrap_or_else(|| {
             panic!(
                 "moving camel {:?} from field {} by {} steps overflows i32",
@@ -85,12 +87,14 @@ impl State {
 
     /// Apply a sequence of moves. Each tuple is (camel, steps).
     /// Moves are applied sequentially in order.
-    pub fn move_multiple_camels<I>(&self, combinations: I) -> Self
+    /// Apply a sequence of moves. Each item is (camel, steps).
+    /// Moves are applied sequentially in order.
+    pub fn move_multiple_camels<I>(&self, moves: I) -> Self
     where
         I: IntoIterator<Item = (Camel, i32)>,
     {
         let mut state = self.clone();
-        for (camel, steps) in combinations.into_iter() {
+        for (camel, steps) in moves.into_iter() {
             state = state.move_camel(camel, steps);
         }
         state
@@ -132,8 +136,9 @@ impl State {
 
         for perm in Permutations::new(camel_list.clone()) {
             for comb in Product::new(choices.clone(), num_camels) {
-                let moves: Vec<(Camel, i32)> = perm.iter().cloned().zip(comb.into_iter()).collect();
-                let result = self.move_multiple_camels(moves.into_iter());
+                // Avoid allocating a Vec for each permutation+combination by passing the
+                // zipped iterator directly. `move_multiple_camels` accepts any IntoIterator.
+                let result = self.move_multiple_camels(perm.iter().cloned().zip(comb.into_iter()));
                 let order = result.order();
                 for (pos, &camel) in order.iter().enumerate() {
                     if let Some(v) = counts.get_mut(&camel) {
