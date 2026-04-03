@@ -1,0 +1,6 @@
+/rust/target/
+/.idea/
+/.vscode/
+*.rs.bk
+.DS_Store
+*.swp
